@@ -1,7 +1,8 @@
 #ifndef _TOKENIZER_
 #define _TOKENIZER_
 
-
+void str_cpy(char* arr, char* temp);
+int str_len(char *str);
 /* Return true (non-zero) if c is a whitespace characer
    ('\t' or ' ').  
    Zero terminators are not printable (therefore false) */
