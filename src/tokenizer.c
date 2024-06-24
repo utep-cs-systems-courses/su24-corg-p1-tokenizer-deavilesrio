@@ -1,20 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "tokenizer.h"
-int main(){
-  void str_cpy(char *arr, char* temp ){
 
-    while(*temp){
-      //
-      *arr = *temp;
-
-      arr++;
-
-      temp++;
-
-    }
-
-  }
+  
 
   int str_len(char *str ){
 
@@ -46,10 +34,10 @@ int main(){
      character (not tab or space).  
      Zero terminators are not printable (therefore false) */ 
   int non_space_char(char c){
-    if(c != ' ' ||c != '\t'){
-      return 1;
-    }else{
+    if(c == ' ' ||c == '\t' || c=='\n' || c=='\0'){
       return 0;
+    }else{
+      return 1;
     }
   }
 
@@ -60,19 +48,37 @@ int main(){
    
   }
 
-  /* Returns a pointer terminator char following *token */
-  char *token_terminator(char *token){
-    char *temp = token;
-    token+=1;
-    while(*token){
-      token++;
-      temp++;
+  char *token_terminator(char *token) {
+    while (*token && *(token + 2)) {
+        token++;
     }
-    return temp;
-  }
+    return token;  // This points to the last character before the null terminator
+  } 
 
   /* Counts the number of tokens in the string argument. */
   int count_tokens(char *str){
+    int count = 0; //count tokens
+    char c; //the char to check 
+    char* temp = str;  //temporal
+    int istoken = 0;
+    while(*temp){
+      c = *temp;
+       
+      if(non_space_char(c) == 1 && istoken == 0){
+        
+        istoken = 1;
+        count++;
+      }
+      else if(space_char(c) == 1){
+        
+        istoken = 0;
+      }
+      
+      temp++;
+    } 
+        
+    
+    return count;
     
   }
 
@@ -90,67 +96,50 @@ int main(){
      tokens[3] = 0
   */
   char **tokenize(char* str){
-    int str_length = str_len(str);
-
-    int max_words = 3; // Assuming a maximum of 3 words
-
-    int max_word_length = 100; // Maximum length of each word
-
-
-
-    // Allocate memory for the array of strings
-
-    char **arr = (char **)malloc(max_words * sizeof(char *));
+     
+    int max_word_length = 100;
+    int max_words = count_tokens(str);
+    char **arr = (char **)malloc(max_words * sizeof(char *)); //Assigns the specific memory for having 10 strings in the array
+    if (!arr) return NULL; //if array is empty return null
 
     for (int i = 0; i < max_words; i++) {
-
-      arr[i] = (char *)malloc(max_word_length * sizeof(char));
-
+        arr[i] = (char *)malloc(max_word_length * sizeof(char)); //Assigns the specific memory for having 100 characters in each strings of the array
+        if (!arr[i]) return NULL;  // Simplified error handling for clarity
     }
 
-
-
-    char temp[max_word_length];
-
-    int i = 0;
-
-    int j = 0;
-
-    int m = 0;
-
-
-
-    for (i = 0; i <= str_length; i++) {
-
-      if (str[i] != ' ' && str[i] != '\0') {
-
-	temp[j] = str[i];
-
-	j++;
-
-      } else {
-
-	temp[j] = '\0'; // Null-terminate temp to make it a valid string
-
-	str_cpy(arr[m], temp); // Copy the word to arr
-
-	m++;
-
-	j = 0;
-
-      }
-
+    int i = 0, j = 0, m = 0;
+    while (str[i]) {
+        if (str[i] != ' ' && str[i] != '\n' && str[i] != '\t') { //if the character of the string is not a space
+            arr[m][j++] = str[i]; //save the character of the string str into the character space of the string from the array
+        } else { //when a space is found, means it is a complete token
+            if (j != 0) { // go inside if j is not 0, meaning it is at the last element
+                arr[m][j] = '\0';  // Null-terminate temp to make it a valid string
+                m++; // go to the next word space
+                j = 0; //restart to the begining
+            }
+        }
+        i++; //next character
     }
 
-
-
+    if (j != 0) {
+        arr[m][j] = '\0';
+        m++;
+    }
+    arr[m] = NULL;  // Null-terminate the array of strings
     return arr;
   }
   /* Prints all tokens. */
-  void print_tokens(char **tokens);
+  void print_tokens(char **tokens){
+    for (int k = 0; tokens[k] != NULL; k++) {
+          printf("%s ", tokens[k]);
+      }
+  }
 
   /* Frees all tokens and the vector containing themx. */
-  void free_tokens(char **tokens);
+  void free_tokens(char **tokens){
+    for (int i = 0; tokens[i] != NULL; i++) {
+        free(tokens[i]);
+    }
+    free(tokens);
+  }
 
-  return 0;
-}
